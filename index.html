@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Cool Content Journal</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet">
@@ -29,10 +28,6 @@ font-size:42px;
 margin-bottom:10px;
 }
 
-header p{
-font-size:18px;
-}
-
 .container{
 max-width:900px;
 margin:auto;
@@ -50,24 +45,30 @@ box-shadow:0 8px 18px rgba(0,0,0,0.08);
 h2{
 font-family:'Playfair Display',serif;
 color:#a46c4f;
-margin-top:0;
-}
-
-h3{
-margin-bottom:5px;
-}
-
-ul{
-padding-left:20px;
 }
 
 textarea{
 width:100%;
-height:80px;
+height:90px;
 border-radius:8px;
 border:1px solid #ddd;
 padding:10px;
 background:#fdf8f2;
+font-family:'Quicksand',sans-serif;
+}
+
+button{
+margin-top:10px;
+padding:10px 15px;
+background:#c9a27e;
+border:none;
+border-radius:6px;
+cursor:pointer;
+color:white;
+}
+
+button:hover{
+background:#a97c5f;
 }
 
 footer{
@@ -77,14 +78,6 @@ background:#e8d8c3;
 margin-top:40px;
 }
 
-.divider{
-width:60px;
-height:4px;
-background:#c9a27e;
-margin:15px auto;
-border-radius:2px;
-}
-
 </style>
 
 </head>
@@ -92,113 +85,58 @@ border-radius:2px;
 <body>
 
 <header>
-
 <h1>Cool Content Journal</h1>
-
-<div class="divider"></div>
-
-<p>Meine Vorlesungsnotizen </p>
-
+<p>Meine Vorlesungsnotizen</p>
 </header>
 
 <div class="container">
 
 <div class="card">
-
-<h2>Über dieses Journal</h2>
-
-<p>
-Dieses Journal sammelt die wichtigsten Inhalte aus meinen Vorlesungen.
-Nach jeder Vorlesung kann ich hier neue Inhalte ergänzen und meine Notizen festhalten.
-</p>
-
-</div>
-
-
-<div class="card">
-
 <h2>Vorlesung 1</h2>
-
-<h3>Thema</h3>
-<p></p>
-
-<h3>Wichtige Begriffe</h3>
-
-<ul>
-<li></li>
-<li></li>
-<li></li>
-</ul>
-
-<h3>Zusammenfassung</h3>
-
-<p></p>
-
-<h3>Eigene Notizen</h3>
-
-<textarea placeholder="Hier deine Notizen eintragen..."></textarea>
-
+<textarea id="note1" placeholder="Hier deine Notizen eintragen..."></textarea>
+<button onclick="saveNote('note1')">Notiz speichern</button>
 </div>
 
-
 <div class="card">
-
 <h2>Vorlesung 2</h2>
-
-<h3>Thema</h3>
-<p></p>
-
-<h3>Wichtige Begriffe</h3>
-
-<ul>
-<li></li>
-<li></li>
-<li></li>
-</ul>
-
-<h3>Zusammenfassung</h3>
-
-<p></p>
-
-<h3>Eigene Notizen</h3>
-
-<textarea placeholder="Hier deine Notizen eintragen..."></textarea>
-
+<textarea id="note2" placeholder="Hier deine Notizen eintragen..."></textarea>
+<button onclick="saveNote('note2')">Notiz speichern</button>
 </div>
 
-
 <div class="card">
-
 <h2>Vorlesung 3</h2>
-
-<h3>Thema</h3>
-<p></p>
-
-<h3>Wichtige Begriffe</h3>
-
-<ul>
-<li></li>
-<li></li>
-<li></li>
-</ul>
-
-<h3>Zusammenfassung</h3>
-
-<p></p>
-
-<h3>Eigene Notizen</h3>
-
-<textarea placeholder="Hier deine Notizen eintragen..."></textarea>
-
+<textarea id="note3" placeholder="Hier deine Notizen eintragen..."></textarea>
+<button onclick="saveNote('note3')">Notiz speichern</button>
 </div>
 
 </div>
 
 <footer>
-
 <p>Cool Content Journal • Erstellt mit KI</p>
-
 </footer>
+
+<script>
+
+function saveNote(id){
+let text=document.getElementById(id).value;
+localStorage.setItem(id,text);
+alert("Notiz gespeichert!");
+}
+
+function loadNotes(){
+let notes=["note1","note2","note3"];
+
+notes.forEach(function(id){
+let saved=localStorage.getItem(id);
+if(saved){
+document.getElementById(id).value=saved;
+}
+});
+}
+
+loadNotes();
+
+</script>
 
 </body>
 </html>
