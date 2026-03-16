@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Cool Content Journal</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet">
@@ -25,7 +26,6 @@ background:#e8d8c3;
 header h1{
 font-family:'Playfair Display',serif;
 font-size:42px;
-margin-bottom:10px;
 }
 
 .container{
@@ -71,6 +71,13 @@ button:hover{
 background:#a97c5f;
 }
 
+.saved-note{
+margin-top:15px;
+padding:12px;
+background:#f1e4d6;
+border-radius:8px;
+}
+
 footer{
 text-align:center;
 padding:30px;
@@ -93,20 +100,34 @@ margin-top:40px;
 
 <div class="card">
 <h2>Vorlesung 1</h2>
+
 <textarea id="note1" placeholder="Hier deine Notizen eintragen..."></textarea>
 <button onclick="saveNote('note1')">Notiz speichern</button>
+
+<div id="display1" class="saved-note"></div>
+
 </div>
+
 
 <div class="card">
 <h2>Vorlesung 2</h2>
+
 <textarea id="note2" placeholder="Hier deine Notizen eintragen..."></textarea>
 <button onclick="saveNote('note2')">Notiz speichern</button>
+
+<div id="display2" class="saved-note"></div>
+
 </div>
+
 
 <div class="card">
 <h2>Vorlesung 3</h2>
+
 <textarea id="note3" placeholder="Hier deine Notizen eintragen..."></textarea>
 <button onclick="saveNote('note3')">Notiz speichern</button>
+
+<div id="display3" class="saved-note"></div>
+
 </div>
 
 </div>
@@ -118,20 +139,33 @@ margin-top:40px;
 <script>
 
 function saveNote(id){
+
 let text=document.getElementById(id).value;
+
 localStorage.setItem(id,text);
-alert("Notiz gespeichert!");
+
+let displayId="display"+id.replace("note","");
+
+document.getElementById(displayId).innerText="Gespeicherte Notiz: "+text;
+
 }
 
 function loadNotes(){
-let notes=["note1","note2","note3"];
 
-notes.forEach(function(id){
-let saved=localStorage.getItem(id);
+for(let i=1;i<=3;i++){
+
+let saved=localStorage.getItem("note"+i);
+
 if(saved){
-document.getElementById(id).value=saved;
+
+document.getElementById("display"+i).innerText="Gespeicherte Notiz: "+saved;
+
+document.getElementById("note"+i).value=saved;
+
 }
-});
+
+}
+
 }
 
 loadNotes();
