@@ -1,79 +1,157 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cool Content Journal</title>
+
+<style>
+body{
+    font-family:'Segoe UI', sans-serif;
+    margin:0;
+    background:#f7f8fc;
+}
+
+header{
+    text-align:center;
+    padding:40px;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+
+.lecture{
+    background:white;
+    padding:25px;
+    margin-bottom:25px;
+    border-radius:15px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+.chapter{
+    margin-top:20px;
+    padding:15px;
+    border-radius:10px;
+    background:#fafafa;
+}
+
+input, textarea{
+    width:100%;
+    margin-top:8px;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ddd;
+}
+
+textarea{
+    height:90px;
+}
+
+button{
+    margin-top:10px;
+    margin-right:5px;
+    padding:8px 14px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.save{ background:#4CAF50; color:white; }
+.delete{ background:#f44336; color:white; }
+.add{ background:#6c63ff; color:white; }
+
+.saved{
+    background:#eef1ff;
+    margin-top:10px;
+    padding:10px;
+    border-radius:8px;
+}
+
+.author{
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Cool Content Journal</h1>
+<p>Interaktive Vorlesungsnotizen</p>
+</header>
+
+<div class="container" id="container"></div>
+
 <script>
 
-// 🔹 Speichern (JETZT: mehrere Beiträge)
-function saveNote(id){
+const totalLectures = 11;
 
-    let text = document.getElementById(id).value;
-    let name = document.getElementById("name_"+id).value;
+// 🔹 Vorlesungen erstellen
+function createLectures(){
+    const container = document.getElementById("container");
 
-    if(!name || !text){
-        alert("Bitte Name und Inhalt eingeben!");
-        return;
-    }
+    for(let i=1;i<=totalLectures;i++){
 
-    let newEntry = {
-        author: name,
-        content: text,
-        time: Date.now()
-    };
+        let lecture = document.createElement("div");
+        lecture.className="lecture";
 
-    let existing = JSON.parse(localStorage.getItem(id)) || [];
-
-    existing.push(newEntry);
-
-    localStorage.setItem(id, JSON.stringify(existing));
-
-    displayNotes(id);
-
-    document.getElementById(id).value="";
-}
-
-// 🔹 Alle Beiträge anzeigen
-function displayNotes(id){
-
-    let container = document.getElementById("display_"+id);
-    let entries = JSON.parse(localStorage.getItem(id)) || [];
-
-    container.innerHTML = "";
-
-    entries.forEach((entry, index)=>{
-
-        let div = document.createElement("div");
-        div.className="saved";
-
-        div.innerHTML = `
-            <div onclick="editEntry('${id}', ${index})" style="cursor:pointer;">
-                <div class="author">${entry.author}</div>
-                <div>${entry.content}</div>
-                <small style="color:gray;">Klicken zum Bearbeiten</small>
-            </div>
-            <button class="delete" onclick="deleteEntry('${id}', ${index})">Löschen</button>
+        lecture.innerHTML = `
+            <h2>Vorlesung ${i}</h2>
+            <button class="add" onclick="addChapter(${i})">+ Kapitel</button>
+            <div id="lecture_${i}"></div>
         `;
 
-        container.appendChild(div);
-    });
+        container.appendChild(lecture);
+
+        loadChapters(i);
+    }
 }
 
-// 🔹 Bearbeiten eines EINZELNEN Beitrags
-function editEntry(id, index){
+// 🔹 Kapitel erstellen
+function createChapter(lecture, chapterId){
 
-    let entries = JSON.parse(localStorage.getItem(id));
+    let container = document.getElementById(`lecture_${lecture}`);
+    let id = `v${lecture}_${chapterId}`;
 
-    let entry = entries[index];
+    let div = document.createElement("div");
+    div.className="chapter";
+    div.id="container_"+id;
 
-    document.getElementById(id).value = entry.content;
-    document.getElementById("name_"+id).value = entry.author;
+    div.innerHTML = `
+        <h3>Kapitel</h3>
 
-    // 🔥 merken welcher bearbeitet wird
-    document.getElementById(id).dataset.editIndex = index;
+        <input type="text" id="name_${id}" placeholder="Dein Name">
+        <textarea id="${id}" placeholder="Dein Inhalt..."></textarea>
 
-    document.getElementById(id).scrollIntoView({
-        behavior:"smooth",
-        block:"center"
-    });
+        <button class="save" onclick="saveNote('${id}')">Speichern</button>
+        <button class="delete" onclick="deleteChapter('${id}', ${lecture})">Kapitel löschen</button>
+
+        <div id="display_${id}"></div>
+    `;
+
+    container.appendChild(div);
 }
 
-// 🔹 Speichern überschreibt NUR beim Editieren
+// 🔹 Kapitel hinzufügen
+function addChapter(lecture){
+
+    let key = `lecture_${lecture}_chapters`;
+    let chapters = JSON.parse(localStorage.getItem(key)) || [];
+
+    let newId = Date.now();
+
+    chapters.push(newId);
+    localStorage.setItem(key, JSON.stringify(chapters));
+
+    createChapter(lecture, newId);
+}
+
+// 🔹 Speichern (mehrere Beiträge!)
 function saveNote(id){
 
     let text = document.getElementById(id).value;
@@ -89,17 +167,13 @@ function saveNote(id){
     let editIndex = document.getElementById(id).dataset.editIndex;
 
     if(editIndex !== undefined){
-        // 🔥 Update statt neu
         entries[editIndex] = {
             author:name,
             content:text,
             time:Date.now()
         };
-
         delete document.getElementById(id).dataset.editIndex;
-
     } else {
-        // ➕ Neuer Beitrag
         entries.push({
             author:name,
             content:text,
@@ -114,8 +188,51 @@ function saveNote(id){
     document.getElementById(id).value="";
 }
 
-// 🔹 Löschen einzelner Beiträge
-function deleteEntry(id, index){
+// 🔹 Anzeige aller Beiträge
+function displayNotes(id){
+
+    let container = document.getElementById("display_"+id);
+    let entries = JSON.parse(localStorage.getItem(id)) || [];
+
+    container.innerHTML = "";
+
+    entries.forEach((entry,index)=>{
+
+        let div = document.createElement("div");
+        div.className="saved";
+
+        div.innerHTML = `
+            <div onclick="editEntry('${id}', ${index})" style="cursor:pointer;">
+                <div class="author">${entry.author}</div>
+                <div>${entry.content}</div>
+                <small>Klicken zum Bearbeiten</small>
+            </div>
+            <button class="delete" onclick="deleteEntry('${id}', ${index})">Löschen</button>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+// 🔹 Bearbeiten
+function editEntry(id, index){
+
+    let entries = JSON.parse(localStorage.getItem(id));
+    let entry = entries[index];
+
+    document.getElementById(id).value = entry.content;
+    document.getElementById("name_"+id).value = entry.author;
+
+    document.getElementById(id).dataset.editIndex = index;
+
+    document.getElementById(id).scrollIntoView({
+        behavior:"smooth",
+        block:"center"
+    });
+}
+
+// 🔹 Beitrag löschen
+function deleteEntry(id,index){
 
     let entries = JSON.parse(localStorage.getItem(id)) || [];
 
@@ -126,9 +243,39 @@ function deleteEntry(id, index){
     displayNotes(id);
 }
 
-// 🔹 Laden
-function loadNotes(){
+// 🔹 Kapitel löschen
+function deleteChapter(id, lecture){
 
+    if(confirm("Kapitel wirklich löschen?")){
+
+        localStorage.removeItem(id);
+
+        let key = `lecture_${lecture}_chapters`;
+        let chapters = JSON.parse(localStorage.getItem(key)) || [];
+
+        chapters = chapters.filter(c => `v${lecture}_${c}` !== id);
+
+        localStorage.setItem(key, JSON.stringify(chapters));
+
+        document.getElementById("container_"+id).remove();
+    }
+}
+
+// 🔹 Kapitel laden
+function loadChapters(lecture){
+
+    let key = `lecture_${lecture}_chapters`;
+    let chapters = JSON.parse(localStorage.getItem(key)) || [];
+
+    chapters.forEach(chapterId=>{
+        createChapter(lecture, chapterId);
+    });
+
+    setTimeout(loadNotes,100);
+}
+
+// 🔹 Inhalte laden
+function loadNotes(){
     let areas = document.querySelectorAll("textarea");
 
     areas.forEach(area=>{
@@ -136,4 +283,10 @@ function loadNotes(){
     });
 }
 
+// 🔹 Start
+createLectures();
+
 </script>
+
+</body>
+</html>
