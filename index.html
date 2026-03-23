@@ -8,10 +8,9 @@
 <style>
 
 body{
-    font-family: 'Segoe UI', sans-serif;
+    font-family:'Segoe UI', sans-serif;
     margin:0;
     background:#f7f8fc;
-    color:#333;
 }
 
 header{
@@ -49,8 +48,6 @@ textarea{
     padding:10px;
     border-radius:8px;
     border:1px solid #ddd;
-    resize:vertical;
-    font-size:14px;
 }
 
 button{
@@ -60,7 +57,6 @@ button{
     border:none;
     border-radius:8px;
     cursor:pointer;
-    font-size:13px;
 }
 
 .save{ background:#4CAF50; color:white; }
@@ -68,27 +64,21 @@ button{
 .delete{ background:#f44336; color:white; }
 .add{ background:#6c63ff; color:white; }
 
-button:hover{
-    opacity:0.85;
-}
-
 .saved{
     background:#eef1ff;
     margin-top:10px;
     padding:10px;
     border-radius:8px;
-    min-height:20px;
 }
 
 </style>
-
 </head>
 
 <body>
 
 <header>
 <h1>Cool Content Journal</h1>
-<p>Dein interaktives Vorlesungsjournal</p>
+<p>Interaktive Vorlesungsnotizen</p>
 </header>
 
 <div class="container" id="container"></div>
@@ -96,9 +86,8 @@ button:hover{
 <script>
 
 const totalLectures = 11;
-const defaultChapters = 2;
 
-// 🔹 Vorlesungen generieren
+// 🔹 Vorlesungen erstellen (fix 11)
 function createLectures(){
     const container = document.getElementById("container");
 
@@ -109,38 +98,35 @@ function createLectures(){
 
         lecture.innerHTML = `
             <h2>Vorlesung ${i}</h2>
-            <button class="add" onclick="addChapter(${i})">+ Kapitel</button>
+            <button class="add" onclick="addChapter(${i})">+ Kapitel hinzufügen</button>
             <div id="lecture_${i}"></div>
         `;
 
         container.appendChild(lecture);
 
-        for(let k=1;k<=defaultChapters;k++){
-            createChapter(i,k);
-        }
-
-        loadChapterCount(i);
+        loadChapters(i);
     }
 }
 
 // 🔹 Kapitel erstellen
-function createChapter(lecture,chapter){
+function createChapter(lecture, chapterId){
 
     let container = document.getElementById(`lecture_${lecture}`);
-    let id = `v${lecture}k${chapter}`;
+    let id = `v${lecture}_${chapterId}`;
 
     let div = document.createElement("div");
     div.className="chapter";
+    div.id = "container_"+id;
 
     div.innerHTML = `
-        <h3>Kapitel ${chapter}</h3>
+        <h3>Kapitel</h3>
 
         <textarea id="${id}"></textarea>
 
         <br>
         <button class="save" onclick="saveNote('${id}')">Speichern</button>
         <button class="edit" onclick="editNote('${id}')">Bearbeiten</button>
-        <button class="delete" onclick="deleteNote('${id}')">Löschen</button>
+        <button class="delete" onclick="deleteChapter('${id}', ${lecture})">Kapitel löschen</button>
 
         <div id="display_${id}" class="saved"></div>
     `;
@@ -148,76 +134,87 @@ function createChapter(lecture,chapter){
     container.appendChild(div);
 }
 
+// 🔹 Kapitel hinzufügen
+function addChapter(lecture){
+
+    let key = `lecture_${lecture}_chapters`;
+    let chapters = JSON.parse(localStorage.getItem(key)) || [];
+
+    let newId = Date.now(); // eindeutige ID
+
+    chapters.push(newId);
+    localStorage.setItem(key, JSON.stringify(chapters));
+
+    createChapter(lecture, newId);
+}
+
+// 🔹 Kapitel löschen (komplett)
+function deleteChapter(id, lecture){
+
+    if(confirm("Kapitel wirklich löschen?")){
+
+        // localStorage löschen
+        localStorage.removeItem(id);
+
+        // Kapitel-Liste aktualisieren
+        let key = `lecture_${lecture}_chapters`;
+        let chapters = JSON.parse(localStorage.getItem(key)) || [];
+
+        chapters = chapters.filter(c => `v${lecture}_${c}` !== id);
+
+        localStorage.setItem(key, JSON.stringify(chapters));
+
+        // UI entfernen
+        let el = document.getElementById("container_"+id);
+        if(el) el.remove();
+    }
+}
+
 // 🔹 Speichern
 function saveNote(id){
     let text = document.getElementById(id).value;
-
-    localStorage.setItem(id,text);
-    document.getElementById("display_"+id).innerText=text;
+    localStorage.setItem(id, text);
+    document.getElementById("display_"+id).innerText = text;
 }
 
 // 🔹 Bearbeiten
 function editNote(id){
     let saved = localStorage.getItem(id);
     if(saved){
-        document.getElementById(id).value=saved;
+        document.getElementById(id).value = saved;
     }
 }
 
-// 🔹 Löschen
-function deleteNote(id){
-    if(confirm("Eintrag wirklich löschen?")){
-        localStorage.removeItem(id);
+// 🔹 Kapitel laden
+function loadChapters(lecture){
 
-        document.getElementById(id).value="";
-        document.getElementById("display_"+id).innerText="";
-    }
+    let key = `lecture_${lecture}_chapters`;
+    let chapters = JSON.parse(localStorage.getItem(key)) || [];
+
+    chapters.forEach(chapterId=>{
+        createChapter(lecture, chapterId);
+    });
+
+    setTimeout(loadNotes,100);
 }
 
-// 🔹 Kapitel hinzufügen
-function addChapter(lecture){
-
-    let key=`lecture_${lecture}_count`;
-    let count = localStorage.getItem(key);
-
-    count = count ? parseInt(count)+1 : defaultChapters+1;
-
-    localStorage.setItem(key,count);
-
-    createChapter(lecture,count);
-}
-
-// 🔹 Zusätzliche Kapitel laden
-function loadChapterCount(lecture){
-
-    let key=`lecture_${lecture}_count`;
-    let count = localStorage.getItem(key);
-
-    if(count){
-        for(let i=defaultChapters+1;i<=count;i++){
-            createChapter(lecture,i);
-        }
-    }
-}
-
-// 🔹 Alle Notizen laden
+// 🔹 Notizen laden
 function loadNotes(){
 
-    let areas=document.querySelectorAll("textarea");
+    let areas = document.querySelectorAll("textarea");
 
     areas.forEach(area=>{
         let saved = localStorage.getItem(area.id);
 
         if(saved){
-            area.value=saved;
-            document.getElementById("display_"+area.id).innerText=saved;
+            area.value = saved;
+            document.getElementById("display_"+area.id).innerText = saved;
         }
     });
 }
 
-// 🔹 Init
+// 🔹 Start
 createLectures();
-setTimeout(loadNotes,200);
 
 </script>
 
