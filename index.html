@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="de">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,51 +8,76 @@
 <style>
 
 body{
-font-family: Arial;
-margin:0;
-background:#f4efe6;
+    font-family: 'Segoe UI', sans-serif;
+    margin:0;
+    background:#f7f8fc;
+    color:#333;
 }
 
 header{
-text-align:center;
-padding:40px;
-background:#e8d8c3;
+    text-align:center;
+    padding:40px;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;
 }
 
 .container{
-max-width:900px;
-margin:auto;
-padding:20px;
+    max-width:900px;
+    margin:auto;
+    padding:20px;
 }
 
 .lecture{
-background:white;
-padding:20px;
-margin-bottom:20px;
-border-radius:10px;
+    background:white;
+    padding:25px;
+    margin-bottom:25px;
+    border-radius:15px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
 }
 
 .chapter{
-margin-top:15px;
+    margin-top:20px;
+    padding:15px;
+    border-radius:10px;
+    background:#fafafa;
 }
 
 textarea{
-width:100%;
-height:80px;
-margin-top:5px;
+    width:100%;
+    height:90px;
+    margin-top:8px;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    resize:vertical;
+    font-size:14px;
 }
 
 button{
-margin-top:8px;
-margin-right:5px;
-padding:8px 12px;
+    margin-top:10px;
+    margin-right:5px;
+    padding:8px 14px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13px;
+}
+
+.save{ background:#4CAF50; color:white; }
+.edit{ background:#2196F3; color:white; }
+.delete{ background:#f44336; color:white; }
+.add{ background:#6c63ff; color:white; }
+
+button:hover{
+    opacity:0.85;
 }
 
 .saved{
-background:#f1e4d6;
-margin-top:8px;
-padding:10px;
-border-radius:5px;
+    background:#eef1ff;
+    margin-top:10px;
+    padding:10px;
+    border-radius:8px;
+    min-height:20px;
 }
 
 </style>
@@ -64,92 +88,138 @@ border-radius:5px;
 
 <header>
 <h1>Cool Content Journal</h1>
-<p>Vorlesungsnotizen mit editierbaren Kapiteln</p>
+<p>Dein interaktives Vorlesungsjournal</p>
 </header>
 
-<div class="container">
-
-<div class="lecture">
-
-<h2>Vorlesung 1</h2>
-
-<div class="chapter">
-
-<h3>Kapitel 1</h3>
-
-<textarea id="v1k1"></textarea>
-
-<button onclick="saveNote('v1k1')">Speichern</button>
-<button onclick="editNote('v1k1')">Bearbeiten</button>
-
-<div id="display_v1k1" class="saved"></div>
-
-</div>
-
-<div class="chapter">
-
-<h3>Kapitel 2</h3>
-
-<textarea id="v1k2"></textarea>
-
-<button onclick="saveNote('v1k2')">Speichern</button>
-<button onclick="editNote('v1k2')">Bearbeiten</button>
-
-<div id="display_v1k2" class="saved"></div>
-
-</div>
-
-</div>
-
-</div>
+<div class="container" id="container"></div>
 
 <script>
 
+const totalLectures = 11;
+const defaultChapters = 2;
+
+// 🔹 Vorlesungen generieren
+function createLectures(){
+    const container = document.getElementById("container");
+
+    for(let i=1;i<=totalLectures;i++){
+
+        let lecture = document.createElement("div");
+        lecture.className="lecture";
+
+        lecture.innerHTML = `
+            <h2>Vorlesung ${i}</h2>
+            <button class="add" onclick="addChapter(${i})">+ Kapitel</button>
+            <div id="lecture_${i}"></div>
+        `;
+
+        container.appendChild(lecture);
+
+        for(let k=1;k<=defaultChapters;k++){
+            createChapter(i,k);
+        }
+
+        loadChapterCount(i);
+    }
+}
+
+// 🔹 Kapitel erstellen
+function createChapter(lecture,chapter){
+
+    let container = document.getElementById(`lecture_${lecture}`);
+    let id = `v${lecture}k${chapter}`;
+
+    let div = document.createElement("div");
+    div.className="chapter";
+
+    div.innerHTML = `
+        <h3>Kapitel ${chapter}</h3>
+
+        <textarea id="${id}"></textarea>
+
+        <br>
+        <button class="save" onclick="saveNote('${id}')">Speichern</button>
+        <button class="edit" onclick="editNote('${id}')">Bearbeiten</button>
+        <button class="delete" onclick="deleteNote('${id}')">Löschen</button>
+
+        <div id="display_${id}" class="saved"></div>
+    `;
+
+    container.appendChild(div);
+}
+
+// 🔹 Speichern
 function saveNote(id){
+    let text = document.getElementById(id).value;
 
-let text=document.getElementById(id).value;
-
-localStorage.setItem(id,text);
-
-document.getElementById("display_"+id).innerText=text;
-
+    localStorage.setItem(id,text);
+    document.getElementById("display_"+id).innerText=text;
 }
 
+// 🔹 Bearbeiten
 function editNote(id){
-
-let saved=localStorage.getItem(id);
-
-if(saved){
-
-document.getElementById(id).value=saved;
-
+    let saved = localStorage.getItem(id);
+    if(saved){
+        document.getElementById(id).value=saved;
+    }
 }
 
+// 🔹 Löschen
+function deleteNote(id){
+    if(confirm("Eintrag wirklich löschen?")){
+        localStorage.removeItem(id);
+
+        document.getElementById(id).value="";
+        document.getElementById("display_"+id).innerText="";
+    }
 }
 
+// 🔹 Kapitel hinzufügen
+function addChapter(lecture){
+
+    let key=`lecture_${lecture}_count`;
+    let count = localStorage.getItem(key);
+
+    count = count ? parseInt(count)+1 : defaultChapters+1;
+
+    localStorage.setItem(key,count);
+
+    createChapter(lecture,count);
+}
+
+// 🔹 Zusätzliche Kapitel laden
+function loadChapterCount(lecture){
+
+    let key=`lecture_${lecture}_count`;
+    let count = localStorage.getItem(key);
+
+    if(count){
+        for(let i=defaultChapters+1;i<=count;i++){
+            createChapter(lecture,i);
+        }
+    }
+}
+
+// 🔹 Alle Notizen laden
 function loadNotes(){
 
-let areas=document.querySelectorAll("textarea");
+    let areas=document.querySelectorAll("textarea");
 
-areas.forEach(function(area){
+    areas.forEach(area=>{
+        let saved = localStorage.getItem(area.id);
 
-let saved=localStorage.getItem(area.id);
-
-if(saved){
-
-area.value=saved;
-document.getElementById("display_"+area.id).innerText=saved;
-
+        if(saved){
+            area.value=saved;
+            document.getElementById("display_"+area.id).innerText=saved;
+        }
+    });
 }
 
-});
-
-}
-
-loadNotes();
+// 🔹 Init
+createLectures();
+setTimeout(loadNotes,200);
 
 </script>
 
 </body>
-
 </html>
