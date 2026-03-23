@@ -1,35 +1,139 @@
-<!-- NUR DIESE FUNKTIONEN ERSETZEN -->
-
 <script>
 
-// 🔹 Anzeige (jetzt klickbar!)
-function displayNote(id, data){
-    document.getElementById("display_"+id).innerHTML = `
-        <div onclick="editNote('${id}')" style="cursor:pointer;">
-            <div class="author">${data.author}</div>
-            <div>${data.content}</div>
-            <small style="color:gray;">(Klicken zum Bearbeiten)</small>
-        </div>
-    `;
+// 🔹 Speichern (JETZT: mehrere Beiträge)
+function saveNote(id){
+
+    let text = document.getElementById(id).value;
+    let name = document.getElementById("name_"+id).value;
+
+    if(!name || !text){
+        alert("Bitte Name und Inhalt eingeben!");
+        return;
+    }
+
+    let newEntry = {
+        author: name,
+        content: text,
+        time: Date.now()
+    };
+
+    let existing = JSON.parse(localStorage.getItem(id)) || [];
+
+    existing.push(newEntry);
+
+    localStorage.setItem(id, JSON.stringify(existing));
+
+    displayNotes(id);
+
+    document.getElementById(id).value="";
 }
 
-// 🔹 Bearbeiten (scrollt sogar hin)
-function editNote(id){
+// 🔹 Alle Beiträge anzeigen
+function displayNotes(id){
 
-    let saved = localStorage.getItem(id);
+    let container = document.getElementById("display_"+id);
+    let entries = JSON.parse(localStorage.getItem(id)) || [];
 
-    if(saved){
-        let data = JSON.parse(saved);
+    container.innerHTML = "";
 
-        document.getElementById(id).value = data.content;
-        document.getElementById("name_"+id).value = data.author;
+    entries.forEach((entry, index)=>{
 
-        // 🔥 automatisch zum Feld scrollen
-        document.getElementById(id).scrollIntoView({
-            behavior: "smooth",
-            block: "center"
+        let div = document.createElement("div");
+        div.className="saved";
+
+        div.innerHTML = `
+            <div onclick="editEntry('${id}', ${index})" style="cursor:pointer;">
+                <div class="author">${entry.author}</div>
+                <div>${entry.content}</div>
+                <small style="color:gray;">Klicken zum Bearbeiten</small>
+            </div>
+            <button class="delete" onclick="deleteEntry('${id}', ${index})">Löschen</button>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+// 🔹 Bearbeiten eines EINZELNEN Beitrags
+function editEntry(id, index){
+
+    let entries = JSON.parse(localStorage.getItem(id));
+
+    let entry = entries[index];
+
+    document.getElementById(id).value = entry.content;
+    document.getElementById("name_"+id).value = entry.author;
+
+    // 🔥 merken welcher bearbeitet wird
+    document.getElementById(id).dataset.editIndex = index;
+
+    document.getElementById(id).scrollIntoView({
+        behavior:"smooth",
+        block:"center"
+    });
+}
+
+// 🔹 Speichern überschreibt NUR beim Editieren
+function saveNote(id){
+
+    let text = document.getElementById(id).value;
+    let name = document.getElementById("name_"+id).value;
+
+    if(!name || !text){
+        alert("Bitte Name und Inhalt eingeben!");
+        return;
+    }
+
+    let entries = JSON.parse(localStorage.getItem(id)) || [];
+
+    let editIndex = document.getElementById(id).dataset.editIndex;
+
+    if(editIndex !== undefined){
+        // 🔥 Update statt neu
+        entries[editIndex] = {
+            author:name,
+            content:text,
+            time:Date.now()
+        };
+
+        delete document.getElementById(id).dataset.editIndex;
+
+    } else {
+        // ➕ Neuer Beitrag
+        entries.push({
+            author:name,
+            content:text,
+            time:Date.now()
         });
     }
+
+    localStorage.setItem(id, JSON.stringify(entries));
+
+    displayNotes(id);
+
+    document.getElementById(id).value="";
+}
+
+// 🔹 Löschen einzelner Beiträge
+function deleteEntry(id, index){
+
+    let entries = JSON.parse(localStorage.getItem(id)) || [];
+
+    entries.splice(index,1);
+
+    localStorage.setItem(id, JSON.stringify(entries));
+
+    displayNotes(id);
+}
+
+// 🔹 Laden
+function loadNotes(){
+
+    let areas = document.querySelectorAll("textarea");
+
+    areas.forEach(area=>{
+        displayNotes(area.id);
+    });
 }
 
 </script>
