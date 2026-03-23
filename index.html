@@ -41,6 +41,14 @@ header{
     background:#fafafa;
 }
 
+input{
+    width:100%;
+    padding:8px;
+    margin-top:8px;
+    border-radius:8px;
+    border:1px solid #ddd;
+}
+
 textarea{
     width:100%;
     height:90px;
@@ -71,6 +79,11 @@ button{
     border-radius:8px;
 }
 
+.author{
+    font-weight:bold;
+    margin-bottom:5px;
+}
+
 </style>
 </head>
 
@@ -78,7 +91,7 @@ button{
 
 <header>
 <h1>Cool Content Journal</h1>
-<p>Interaktive Vorlesungsnotizen</p>
+<p>Gemeinsame Vorlesungsnotizen</p>
 </header>
 
 <div class="container" id="container"></div>
@@ -87,7 +100,7 @@ button{
 
 const totalLectures = 11;
 
-// 🔹 Vorlesungen erstellen (fix 11)
+// 🔹 Vorlesungen erstellen
 function createLectures(){
     const container = document.getElementById("container");
 
@@ -98,7 +111,7 @@ function createLectures(){
 
         lecture.innerHTML = `
             <h2>Vorlesung ${i}</h2>
-            <button class="add" onclick="addChapter(${i})">+ Kapitel hinzufügen</button>
+            <button class="add" onclick="addChapter(${i})">+ Kapitel</button>
             <div id="lecture_${i}"></div>
         `;
 
@@ -116,12 +129,14 @@ function createChapter(lecture, chapterId){
 
     let div = document.createElement("div");
     div.className="chapter";
-    div.id = "container_"+id;
+    div.id="container_"+id;
 
     div.innerHTML = `
         <h3>Kapitel</h3>
 
-        <textarea id="${id}"></textarea>
+        <input type="text" id="name_${id}" placeholder="Dein Name">
+
+        <textarea id="${id}" placeholder="Dein Inhalt..."></textarea>
 
         <br>
         <button class="save" onclick="saveNote('${id}')">Speichern</button>
@@ -140,7 +155,7 @@ function addChapter(lecture){
     let key = `lecture_${lecture}_chapters`;
     let chapters = JSON.parse(localStorage.getItem(key)) || [];
 
-    let newId = Date.now(); // eindeutige ID
+    let newId = Date.now();
 
     chapters.push(newId);
     localStorage.setItem(key, JSON.stringify(chapters));
@@ -148,40 +163,65 @@ function addChapter(lecture){
     createChapter(lecture, newId);
 }
 
-// 🔹 Kapitel löschen (komplett)
-function deleteChapter(id, lecture){
-
-    if(confirm("Kapitel wirklich löschen?")){
-
-        // localStorage löschen
-        localStorage.removeItem(id);
-
-        // Kapitel-Liste aktualisieren
-        let key = `lecture_${lecture}_chapters`;
-        let chapters = JSON.parse(localStorage.getItem(key)) || [];
-
-        chapters = chapters.filter(c => `v${lecture}_${c}` !== id);
-
-        localStorage.setItem(key, JSON.stringify(chapters));
-
-        // UI entfernen
-        let el = document.getElementById("container_"+id);
-        if(el) el.remove();
-    }
-}
-
 // 🔹 Speichern
 function saveNote(id){
+
     let text = document.getElementById(id).value;
-    localStorage.setItem(id, text);
-    document.getElementById("display_"+id).innerText = text;
+    let name = document.getElementById("name_"+id).value;
+
+    if(!name || !text){
+        alert("Bitte Name und Inhalt eingeben!");
+        return;
+    }
+
+    let data = {
+        author: name,
+        content: text
+    };
+
+    localStorage.setItem(id, JSON.stringify(data));
+
+    displayNote(id, data);
+
+    // 🔥 Textfelder leeren
+    document.getElementById(id).value="";
+}
+
+// 🔹 Anzeige
+function displayNote(id, data){
+    document.getElementById("display_"+id).innerHTML = `
+        <div class="author">${data.author}</div>
+        <div>${data.content}</div>
+    `;
 }
 
 // 🔹 Bearbeiten
 function editNote(id){
+
     let saved = localStorage.getItem(id);
+
     if(saved){
-        document.getElementById(id).value = saved;
+        let data = JSON.parse(saved);
+
+        document.getElementById(id).value = data.content;
+        document.getElementById("name_"+id).value = data.author;
+    }
+}
+
+// 🔹 Löschen
+function deleteChapter(id, lecture){
+
+    if(confirm("Kapitel wirklich löschen?")){
+
+        localStorage.removeItem(id);
+
+        let key = `lecture_${lecture}_chapters`;
+        let chapters = JSON.parse(localStorage.getItem(key)) || [];
+
+        chapters = chapters.filter(c => `v${lecture}_${c}` !== id);
+        localStorage.setItem(key, JSON.stringify(chapters));
+
+        document.getElementById("container_"+id).remove();
     }
 }
 
@@ -207,8 +247,8 @@ function loadNotes(){
         let saved = localStorage.getItem(area.id);
 
         if(saved){
-            area.value = saved;
-            document.getElementById("display_"+area.id).innerText = saved;
+            let data = JSON.parse(saved);
+            displayNote(area.id, data);
         }
     });
 }
