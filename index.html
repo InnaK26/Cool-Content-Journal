@@ -1,140 +1,155 @@
-<script>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pflanzen Shop – Moderne Zimmerpflanzen</title>
 
-// 🔹 Speichern (JETZT: mehrere Beiträge)
-function saveNote(id){
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
-    let text = document.getElementById(id).value;
-    let name = document.getElementById("name_"+id).value;
+    <style>
+        :root {
+            --green-main: #7BAA78;     /* Salbeigrün */
+            --green-soft: #A9C6A5;     /* Eukalyptus */
+            --beige: #F5F3EA;
+            --sand: #E9E3D2;
+            --dark-text: #333333;
+            --light-text: #666666;
+            --white: #FFFFFF;
+        }
 
-    if(!name || !text){
-        alert("Bitte Name und Inhalt eingeben!");
-        return;
-    }
+        body {
+            font-family: "Inter", sans-serif;
+            margin: 0;
+            background: var(--beige);
+            color: var(--dark-text);
+        }
 
-    let newEntry = {
-        author: name,
-        content: text,
-        time: Date.now()
-    };
+        header {
+            background: var(--white);
+            padding: 25px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--sand);
+        }
 
-    
-    let existing = JSON.parse(localStorage.getItem(id)) || [];
+        header h1 {
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            color: var(--green-main);
+        }
 
-    existing.push(newEntry);
+        nav a {
+            margin-left: 25px;
+            text-decoration: none;
+            color: var(--dark-text);
+            font-weight: 500;
+        }
 
-    localStorage.setItem(id, JSON.stringify(existing));
+        .hero {
+            background: var(--white);
+            padding: 80px 40px;
+            text-align: center;
+        }
 
-    displayNotes(id);
+        .hero h2 {
+            font-family: "Poppins", sans-serif;
+            font-size: 42px;
+            font-weight: 600;
+            color: var(--green-main);
+            margin-bottom: 10px;
+        }
 
-    document.getElementById(id).value="";
-}
+        .hero p {
+            font-size: 18px;
+            color: var(--light-text);
+        }
 
-// 🔹 Alle Beiträge anzeigen
-function displayNotes(id){
+        .btn {
+            display: inline-block;
+            background: var(--green-main);
+            color: var(--white);
+            padding: 12px 26px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 17px;
+            margin-top: 25px;
+            font-family: "Poppins", sans-serif;
+        }
 
-    let container = document.getElementById("display_"+id);
-    let entries = JSON.parse(localStorage.getItem(id)) || [];
+        .section {
+            padding: 60px 40px;
+            text-align: center;
+        }
 
-    container.innerHTML = "";
+        .usp-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
 
-    entries.forEach((entry, index)=>{
+        .usp {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 30px;
+            width: 250px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
 
-        let div = document.createElement("div");
-        div.className="saved";
+        footer {
+            background: var(--white);
+            text-align: center;
+            padding: 20px;
+            margin-top: 60px;
+            border-top: 1px solid var(--sand);
+        }
+    </style>
+</head>
 
-        div.innerHTML = `
-            <div onclick="editEntry('${id}', ${index})" style="cursor:pointer;">
-                <div class="author">${entry.author}</div>
-                <div>${entry.content}</div>
-                <small style="color:gray;">Klicken zum Bearbeiten</small>
-            </div>
-            <button class="delete" onclick="deleteEntry('${id}', ${index})">Löschen</button>
-        `;
+<body>
 
-        container.appendChild(div);
-    });
-}
+<header>
+    <h1>GreenHome Plants</h1>
+    <nav>
+        <a href="#shop">Shop</a>
+        <a href="#pflege">Pflanzenpflege</a>
+        <a href="#about">Über uns</a>
+        <a href="#kontakt">Kontakt</a>
+    </nav>
+</header>
 
-// 🔹 Bearbeiten eines EINZELNEN Beitrags
-function editEntry(id, index){
+<section class="hero">
+    <h2>Frische Zimmerpflanzen für dein Zuhause</h2>
+    <p>Nachhaltig, pflegeleicht & perfekt für deinen Alltag – entdecke unsere moderne Pflanzenwelt.</p>
+    <a href="#shop" class="btn">Jetzt entdecken</a>
+</section>
 
-    let entries = JSON.parse(localStorage.getItem(id));
+<section class="section">
+    <h3>Warum unsere Pflanzen?</h3>
 
-    let entry = entries[index];
+    <div class="usp-container">
+        <div class="usp">
+            <h4>Plegeleicht</h4>
+            <p>Perfekt für Anfänger und Vielbeschäftigte.</p>
+        </div>
+        <div class="usp">
+            <h4>Nachhaltig verpackt</h4>
+            <p>Umweltfreundliche Materialien ohne Plastik.</p>
+        </div>
+        <div class="usp">
+            <h4>Direkt vom Züchter</h4>
+            <p>Frische & Qualität garantiert.</p>
+        </div>
+    </div>
+</section>
 
-    document.getElementById(id).value = entry.content;
-    document.getElementById("name_"+id).value = entry.author;
+<footer>
+    © 2026 GreenHome Plants – Alle Rechte vorbehalten.
+</footer>
 
-    // 🔥 merken welcher bearbeitet wird
-    document.getElementById(id).dataset.editIndex = index;
-
-    document.getElementById(id).scrollIntoView({
-        behavior:"smooth",
-        block:"center"
-    });
-}
-
-// 🔹 Speichern überschreibt NUR beim Editieren
-function saveNote(id){
-
-    let text = document.getElementById(id).value;
-    let name = document.getElementById("name_"+id).value;
-
-    if(!name || !text){
-        alert("Bitte Name und Inhalt eingeben!");
-        return;
-    }
-
-    let entries = JSON.parse(localStorage.getItem(id)) || [];
-
-    let editIndex = document.getElementById(id).dataset.editIndex;
-
-    if(editIndex !== undefined){
-        // 🔥 Update statt neu
-        entries[editIndex] = {
-            author:name,
-            content:text,
-            time:Date.now()
-        };
-
-        delete document.getElementById(id).dataset.editIndex;
-
-    } else {
-        // ➕ Neuer Beitrag
-        entries.push({
-            author:name,
-            content:text,
-            time:Date.now()
-        });
-    }
-
-    localStorage.setItem(id, JSON.stringify(entries));
-
-    displayNotes(id);
-
-    document.getElementById(id).value="";
-}
-
-// 🔹 Löschen einzelner Beiträge
-function deleteEntry(id, index){
-
-    let entries = JSON.parse(localStorage.getItem(id)) || [];
-
-    entries.splice(index,1);
-
-    localStorage.setItem(id, JSON.stringify(entries));
-
-    displayNotes(id);
-}
-
-// 🔹 Laden
-function loadNotes(){
-
-    let areas = document.querySelectorAll("textarea");
-
-    areas.forEach(area=>{
-        displayNotes(area.id);
-    });
-}
-
-</script>
+</body>
+</html>
