@@ -1,155 +1,20 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pflanzen Shop – Moderne Zimmerpflanzen</title>
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --green-main: #7BAA78;     /* Salbeigrün */
-            --green-soft: #A9C6A5;     /* Eukalyptus */
-            --beige: #F5F3EA;
-            --sand: #E9E3D2;
-            --dark-text: #333333;
-            --light-text: #666666;
-            --white: #FFFFFF;
-        }
-
-        body {
-            font-family: "Inter", sans-serif;
-            margin: 0;
-            background: var(--beige);
-            color: var(--dark-text);
-        }
-
-        header {
-            background: var(--white);
-            padding: 25px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--sand);
-        }
-
-        header h1 {
-            font-family: "Poppins", sans-serif;
-            margin: 0;
-            color: var(--green-main);
-        }
-
-        nav a {
-            margin-left: 25px;
-            text-decoration: none;
-            color: var(--dark-text);
-            font-weight: 500;
-        }
-
-        .hero {
-            background: var(--white);
-            padding: 80px 40px;
-            text-align: center;
-        }
-
-        .hero h2 {
-            font-family: "Poppins", sans-serif;
-            font-size: 42px;
-            font-weight: 600;
-            color: var(--green-main);
-            margin-bottom: 10px;
-        }
-
-        .hero p {
-            font-size: 18px;
-            color: var(--light-text);
-        }
-
-        .btn {
-            display: inline-block;
-            background: var(--green-main);
-            color: var(--white);
-            padding: 12px 26px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 17px;
-            margin-top: 25px;
-            font-family: "Poppins", sans-serif;
-        }
-
-        .section {
-            padding: 60px 40px;
-            text-align: center;
-        }
-
-        .usp-container {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-top: 40px;
-            flex-wrap: wrap;
-        }
-
-        .usp {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 30px;
-            width: 250px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-        }
-
-        footer {
-            background: var(--white);
-            text-align: center;
-            padding: 20px;
-            margin-top: 60px;
-            border-top: 1px solid var(--sand);
-        }
-    </style>
-</head>
-
-<body>
-
-<header>
-    <h1>GreenHome Plants</h1>
-    <nav>
-        <a href="#shop">Shop</a>
-        <a href="#pflege">Pflanzenpflege</a>
-        <a href="#about">Über uns</a>
-        <a href="#kontakt">Kontakt</a>
-    </nav>
-</header>
-
-<section class="hero">
-    <h2>Frische Zimmerpflanzen für dein Zuhause</h2>
-    <p>Nachhaltig, pflegeleicht & perfekt für deinen Alltag – entdecke unsere moderne Pflanzenwelt.</p>
-    <a href="#shop" class="btn">Jetzt entdecken</a>
-</section>
-
-<section class="section">
-    <h3>Warum unsere Pflanzen?</h3>
-
-    <div class="usp-container">
-        <div class="usp">
-            <h4>Plegeleicht</h4>
-            <p>Perfekt für Anfänger und Vielbeschäftigte.</p>
-        </div>
-        <div class="usp">
-            <h4>Nachhaltig verpackt</h4>
-            <p>Umweltfreundliche Materialien ohne Plastik.</p>
-        </div>
-        <div class="usp">
-            <h4>Direkt vom Züchter</h4>
-            <p>Frische & Qualität garantiert.</p>
-        </div>
-    </div>
-</section>
-
-<footer>
-    © 2026 GreenHome Plants – Alle Rechte vorbehalten.
-</footer>
-
-</body>
-</html>
+cool-content-journal/
+├─ index.md              → Startseite (Übersicht)
+├─ vorlesungen.md        → Übersicht aller Vorlesungen
+├─ ueber-mich.md         → Informationen zum Journal
+├─ _vorlesungen/         → Einzelne Vorlesungsseiten
+│  ├─ 01-einfuehrung.md
+│  ├─ 02-thema.md
+│  └─ _vorlage.md
+├─ _layouts/
+│  ├─ default.html
+│  ├─ seite.html
+│  └─ vorlesung.html
+├─ _includes/
+│  ├─ navigation.html
+│  ├─ footer.html
+│  └─ meta.html
+├─ assets/
+│  ├─ css/style.css
+│  └─ images/vorlesungen/
+└─ _config.yml
