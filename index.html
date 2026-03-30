@@ -17,6 +17,7 @@ function saveNote(id){
         time: Date.now()
     };
 
+    
     let existing = JSON.parse(localStorage.getItem(id)) || [];
 
     existing.push(newEntry);
