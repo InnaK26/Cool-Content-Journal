@@ -1,0 +1,22 @@
+/
+├─ _config.yml
+├─ Gemfile
+├─ Gemfile.lock            (optional, kann später entstehen)
+├─ index.html
+├─ search.json
+├─ README.md
+├─ _layouts/
+│  ├─ default.html
+│  └─ lecture.html
+├─ _includes/
+│  ├─ header.html
+│  └─ footer.html
+├─ _lectures/
+│  └─ 2026-04-23-beispiel-vorlesung.md
+└─ assets/
+   ├─ css/
+   │  └─ style.css
+   ├─ js/
+   │  └─ search.js
+   └─ uploads/
+      └─ (hier kommen deine Bilder/Videos rein)
