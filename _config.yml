@@ -1,1 +1,28 @@
 
+title: "Vorlesungsjournal"
+description: "Kurze Zusammenfassungen meiner Vorlesungen – jederzeit editierbar."
+url: ""                # leer lassen für GitHub Pages
+baseurl: ""            # z.B. "/mein-repo" falls Pages unter /mein-repo/ läuft
+
+markdown: kramdown
+
+collections:
+  lectures:
+    output: true
+    permalink: /lecture/:slug/
+
+defaults:
+  - scope:
+      path: ""
+      type: lectures
+    values:
+      layout: lecture
+
+kramdown:
+  input: GFM
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
