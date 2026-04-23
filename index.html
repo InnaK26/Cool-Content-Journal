@@ -1,39 +1,328 @@
----
-layout: default
-title: Start
----
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Vorlesungsjournal</title>
+  <meta name="description" content="Ein ruhiges, modernes Journal für Vorlesungs-Zusammenfassungen – editierbar über GitHub." />
 
-<section class="hero">
-  <h1>Vorlesungsjournal</h1>
-  <p class="subtitle">Kurze, klare Zusammenfassungen – ruhig, modern, inspirierend.</p>
+  <style>
+    :root{
+      --bg: #fbfbfc;
+      --surface: rgba(255,255,255,.78);
+      --card: rgba(255,255,255,.92);
+      --text: #14151a;
+      --muted: #5a6472;
+      --line: rgba(20,21,26,.10);
+      --accent: #3b82f6;
+      --accent2: #10b981;
+      --shadow: 0 10px 30px rgba(0,0,0,.06);
+      --radius: 18px;
+      --max: 980px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    html[data-theme="dark"]{
+      --bg: #0b0d12;
+      --surface: rgba(16,20,33,.55);
+      --card: rgba(16,20,33,.86);
+      --text: #f0f3ff;
+      --muted: #a7b0c2;
+      --line: rgba(240,243,255,.10);
+      --accent: #60a5fa;
+      --accent2: #34d399;
+      --shadow: 0 12px 32px rgba(0,0,0,.35);
+    }
 
-  <div class="searchWrap">
-    <input id="searchInput" class="search" type="search" placeholder="Suche nach Titel, Thema, Tags…" autocomplete="off" />
-    <span class="hint">Tipp: Du kannst Vorlesungen direkt als Markdown-Dateien in <code>_lectures/</code> anlegen.</span>
-  </div>
-</section>
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 18% -10%, rgba(59,130,246,.14), transparent 60%),
+        radial-gradient(900px 500px at 110% 5%, rgba(16,185,129,.12), transparent 55%),
+        var(--bg);
+      min-height:100vh;
+      line-height:1.55;
+    }
+    a{ color:inherit; text-decoration:none; }
+    a:hover{ color: var(--accent); }
 
-<section class="list" id="lectureList">
-  {% assign lectures_sorted = site.lectures | sort: "date" | reverse %}
-  {% for lecture in lectures_sorted %}
-    <article class="card" data-title="{{ lecture.title | escape }}" data-tags="{{ lecture.tags | join: ' ' | escape }}" data-summary="{{ lecture.summary | escape }}">
-      <div class="meta">
-        <span class="date">{{ lecture.date | date: "%d.%m.%Y" }}</span>
-        {% if lecture.course %}<span class="pill">{{ lecture.course }}</span>{% endif %}
-        {% if lecture.tags %}
-          {% for tag in lecture.tags %}
-            <span class="tag">#{{ tag }}</span>
-          {% endfor %}
-        {% endif %}
+    .container{
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    /* Topbar */
+    .topbar{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbarInner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 0;
+      gap: 12px;
+    }
+    .brand{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+    .dot{
+      width: 10px; height: 10px; border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 7px rgba(59,130,246,.16);
+    }
+    .nav{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      color: var(--muted);
+      font-weight: 560;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .btn{
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      transition: transform .08s ease;
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btn.ghost{
+      background: transparent;
+      box-shadow: none;
+    }
+
+    main{ padding: 22px 0 44px; }
+
+    /* Hero */
+    .hero{
+      padding: 20px 0 10px;
+    }
+    h1{
+      margin:0;
+      font-size: clamp(1.9rem, 2.8vw, 2.6rem);
+      letter-spacing: -.02em;
+    }
+    .subtitle{
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 75ch;
+    }
+
+    /* Controls */
+    .controls{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .search{
+      width:100%;
+      padding: 14px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      outline: none;
+    }
+    .search:focus{
+      border-color: rgba(59,130,246,.55);
+      box-shadow: 0 0 0 6px rgba(59,130,246,.14), var(--shadow);
+    }
+    .row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content: space-between;
+    }
+    .chipRow{ display:flex; gap: 8px; flex-wrap: wrap; }
+    .chip{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 92%, transparent);
+      color: var(--muted);
+      font-size: .92rem;
+      cursor: pointer;
+      user-select:none;
+    }
+    .chip[data-active="true"]{
+      color: var(--text);
+      border-color: rgba(59,130,246,.45);
+      box-shadow: 0 0 0 6px rgba(59,130,246,.10);
+    }
+    .hint{
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    .hint code{
+      font-family: var(--mono);
+      padding: 2px 6px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--card) 85%, transparent);
+    }
+
+    /* List / Cards */
+    .list{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .card{
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+    .meta{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 8px 10px;
+      align-items:center;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    .date{ font-family: var(--mono); font-size: .9rem; }
+    .pill{
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 90%, transparent);
+    }
+    .tag{ color: color-mix(in srgb, var(--muted) 85%, var(--accent)); }
+    .title{
+      margin: 10px 0 6px;
+      font-size: 1.18rem;
+      letter-spacing: -.01em;
+    }
+    .summary{ margin: 0; color: var(--muted); }
+
+    .cardActions{
+      display:flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content: space-between;
+    }
+    .link{
+      color: var(--accent);
+      font-weight: 650;
+    }
+
+    /* Modal / Detail */
+    dialog{
+      width: min(920px, calc(100% - 24px));
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--card);
+      box-shadow: 0 25px 60px rgba(0,0,0,.25);
+      padding: 0;
+      overflow: hidden;
+    }
+    dialog::backdrop{
+      background: rgba(0,0,0,.45);
+      backdrop-filter: blur(3px);
+    }
+    .modalHeader{
+      padding: 16px 16px 0;
+      display:flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .modalTitle{
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: -.01em;
+    }
+    .modalBody{
+      padding: 10px 16px 16px;
+    }
+    .prose h3{ margin-top: 18px; }
+    .prose p{ margin: 10px 0; }
+    .prose ul{ padding-left: 18px; }
+    .prose code{
+      font-family: var(--mono);
+      font-size: .95em;
+      padding: 2px 6px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--card) 85%, transparent);
+    }
+    .media{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .mediaCard{
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow:hidden;
+      background: #000;
+      box-shadow: var(--shadow);
+    }
+    .mediaCard img{
+      width:100%;
+      height:auto;
+      display:block;
+      background: #111;
+    }
+    .mediaCard iframe, .mediaCard video{
+      width:100%;
+      aspect-ratio: 16 / 9;
+      display:block;
+    }
+    .footer{
+      border-top: 1px solid var(--line);
+      margin-top: 30px;
+      padding: 18px 0;
+      color: var(--muted);
+    }
+    .footerInner{
+      display:flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .empty{
+      padding: 18px;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      color: var(--muted);
+      text-align:center;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="container topbarInner">
+      <div class="brand" aria-label="Vorlesungsjournal">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Vorlesungsjournal</span>
       </div>
-      <h2 class="cardTitle"><a href="{{ lecture.url | relative_url }}">{{ lecture.title }}</a></h2>
-      {% if lecture.summary %}
-        <p class="summary">{{ lecture.summary }}</p>
-      {% endif %}
-      <a class="readMore" href="{{ lecture.url | relative_url }}">Öffnen →</a>
-    </article>
-  {% endfor %}
-</section>
 
-<script src="{{ '/assets/js/search.js' | relative_url }}"></script>
-``
+      <nav class="nav">
