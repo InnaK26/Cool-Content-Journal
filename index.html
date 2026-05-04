@@ -6,25 +6,968 @@
   <title>Vorlesungsjournal</title>
 
   <style>
-    /* -----------------------------
-       Modern SaaS-like UI (clean, bento, cards)
-       ----------------------------- */
-
+    /* Modern, zeitgemäß: klare Typo, Cards, Whitespace, subtile Shadows (SaaS-/Produkt-Style) */
     :root{
-      --bg: #0b0f17;
-      --panel: rgba(255,255,255,.06);
-      --panel2: rgba(255,255,255,.08);
-      --border: rgba(255,255,255,.10);
+      --bg: #0b1020;
+      --surface: rgba(255,255,255,.06);
+      --surface2: rgba(255,255,255,.09);
+      --border: rgba(255,255,255,.12);
       --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.65);
-      --muted2: rgba(255,255,255,.50);
-      --accent: #7c3aed;   /* violet */
-      --accent2:#22c55e;   /* green */
+      --muted2: rgba(255,255,255,.5);
+      --accent: #7c3aed;
+      --accent2:#22c55e;
       --danger: #ef4444;
-      --warn: #f59e0b;
 
-      --shadow: 0 18px 45px rgba(0,0,0,.35);
-      --shadow2: 0 10px 30px rgba(0,0,0,.25);
-      --radius: 18px;
-      --radius2: 14px;
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --shadow2: 0 10px 30px rgba(0,0,0,.22);
+      --r: 18px;
+      --r2: 14px;
+      --max: 1200px;
+      --gap: 16px;
+      --focus: 0 0 0 4px rgba(124,58,237,.25);
+    }
 
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f6f7fb;
+        --surface: rgba(17,24,39,.05);
+        --surface2: rgba(17,24,39,.07);
+        --border: rgba(17,24,39,.12);
+        --text: rgba(17,24,39,.92);
+        --muted: rgba(17,24,39,.65);
+        --muted2: rgba(17,24,39,.52);
+        --shadow: 0 18px 50px rgba(17,24,39,.10);
+        --shadow2: 0 10px 30px rgba(17,24,39,.08);
+        --focus: 0 0 0 4px rgba(124,58,237,.18);
+      }
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(1200px 700px at 10% -10%, rgba(124,58,237,.22), transparent 60%),
+        radial-gradient(900px 500px at 110% 10%, rgba(34,197,94,.16), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    .wrap{
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 26px 18px 34px;
+    }
+
+    /* Topbar */
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap: var(--gap);
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      min-width: 280px;
+    }
+    .logo{
+      width:44px;height:44px;border-radius:14px;
+      background: linear-gradient(135deg, rgba(124,58,237,1), rgba(34,197,94,1));
+      box-shadow: var(--shadow2);
+      flex: 0 0 auto;
+    }
+    .brand h1{
+      margin:0;
+      font-size: 18px;
+      letter-spacing: .2px;
+    }
+    .brand p{
+      margin:2px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 62ch;
+    }
+
+    .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .btn{
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      display:inline-flex; align-items:center; gap:8px;
+      font-weight: 700;
+      font-size: 13px;
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); background: var(--surface2); }
+    .btn:active{ transform: translateY(0); }
+    .btn:focus{ outline:none; box-shadow: var(--focus); }
+
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(124,58,237,.98), rgba(124,58,237,.78));
+      border-color: rgba(124,58,237,.55);
+    }
+    .btn.primary:hover{
+      background: linear-gradient(135deg, rgba(124,58,237,1), rgba(124,58,237,.82));
+    }
+
+    .btn.danger{
+      background: rgba(239,68,68,.12);
+      border-color: rgba(239,68,68,.35);
+      color: rgba(239,68,68,.95);
+    }
+    .btn.ghost{ background: transparent; }
+    .btn.small{ padding: 8px 10px; border-radius: 12px; font-size: 12px; }
+
+    /* Bento / Stats */
+    .bento{
+      display:grid;
+      grid-template-columns: 1.25fr .75fr .75fr;
+      gap: var(--gap);
+      margin-bottom: 16px;
+    }
+    @media (max-width: 980px){
+      .bento{ grid-template-columns: 1fr; }
+      .actions{ justify-content:flex-start; }
+    }
+
+    .tile{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 16px;
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    .kicker{
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .big{
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: .2px;
+      margin: 0 0 6px;
+    }
+    .sub{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      max-width: 65ch;
+    }
+    .chiprow{
+      display:flex; gap:8px; flex-wrap:wrap; margin-top: 12px;
+    }
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(124,58,237,.12);
+      border: 1px solid rgba(124,58,237,.25);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .chip.green{
+      background: rgba(34,197,94,.12);
+      border-color: rgba(34,197,94,.25);
+    }
+    .chip.gray{
+      background: rgba(255,255,255,.07);
+      border-color: var(--border);
+      color: var(--muted);
+    }
+
+    /* Editor + Liste */
+    .grid{
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap: var(--gap);
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 16px;
+      box-shadow: var(--shadow2);
+    }
+
+    .panel h2{
+      margin: 0 0 10px;
+      font-size: 14px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .field{ display:flex; flex-direction:column; gap:6px; margin-bottom: 12px; }
+    label{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
+    input, textarea, select{
+      width:100%;
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.12);
+      color: var(--text);
+      outline:none;
+      transition: box-shadow .12s ease, border-color .12s ease, background .12s ease;
+      font-size: 14px;
+    }
+    @media (prefers-color-scheme: light){
+      input, textarea, select{ background: rgba(255,255,255,.65); }
+    }
+    textarea{ min-height: 92px; resize: vertical; }
+    input:focus, textarea:focus, select:focus{
+      box-shadow: var(--focus);
+      border-color: rgba(124,58,237,.45);
+      background: rgba(0,0,0,.16);
+    }
+    @media (prefers-color-scheme: light){
+      input:focus, textarea:focus, select:focus{ background: rgba(255,255,255,.9); }
+    }
+
+    .row{ display:flex; gap:10px; }
+    .row > *{ flex:1; }
+
+    .hint{
+      font-size: 12px;
+      color: var(--muted2);
+      margin-top: -6px;
+      margin-bottom: 12px;
+    }
+
+    .divider{ height:1px; background: var(--border); margin: 14px 0; }
+
+    /* Toolbar + Liste */
+    .toolbar{
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center;
+      margin-bottom: 12px;
+    }
+    .search{
+      flex: 1 1 240px;
+      position:relative;
+    }
+    .search input{ padding-left: 38px; }
+    .search span{
+      position:absolute;
+      left: 12px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 14px;
+      user-select:none;
+    }
+    .select{ flex: 0 0 180px; }
+
+    .list{ display:grid; gap: var(--gap); }
+
+    .card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 16px;
+      box-shadow: var(--shadow2);
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      background: var(--surface2);
+      border-color: rgba(124,58,237,.20);
+    }
+
+    .cardhead{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      margin-bottom: 8px;
+    }
+
+    .title{
+      margin:0;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+
+    .meta{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      align-items:flex-end;
+      color: var(--muted);
+      font-size: 12px;
+      white-space:nowrap;
+    }
+
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(124,58,237,.12);
+      border: 1px solid rgba(124,58,237,.22);
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .content p{ margin: 8px 0; color: var(--text); }
+    .content .muted{ color: var(--muted); }
+
+    .tags{ display:flex; flex-wrap:wrap; gap:6px; margin-top: 10px; }
+    .tag{
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-weight: 900;
+    }
+    @media (prefers-color-scheme: light){
+      .tag{ background: rgba(17,24,39,.04); }
+    }
+
+    .links{ margin-top: 12px; display:grid; gap: 8px; }
+    .links a{
+      display:block;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.10);
+      color: var(--text);
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    @media (prefers-color-scheme: light){
+      .links a{ background: rgba(255,255,255,.65); }
+    }
+    .links a:hover{
+      border-color: rgba(34,197,94,.30);
+      text-decoration:none;
+    }
+
+    .embed{
+      margin-top: 12px;
+      border-radius: var(--r2);
+      overflow:hidden;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.12);
+      aspect-ratio: 16/9;
+    }
+    .embed iframe, .embed video{
+      width:100%; height:100%;
+      border:0;
+      display:block;
+    }
+
+    .cardactions{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top: 12px;
+    }
+
+    .empty{
+      padding: 22px 16px;
+      border-radius: var(--r);
+      border: 1px dashed rgba(255,255,255,.20);
+      color: var(--muted);
+      text-align:center;
+      background: rgba(255,255,255,.04);
+    }
+    @media (prefers-color-scheme: light){
+      .empty{ border-color: rgba(17,24,39,.18); background: rgba(17,24,39,.03); }
+    }
+
+    .footer{
+      margin-top: 18px;
+      color: var(--muted2);
+      font-size: 12px;
+      text-align:center;
+    }
+
+    .sr-only{
+      position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+      overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Vorlesungsjournal</h1>
+          <p>Einträge erstellen, korrigieren (bearbeiten) oder löschen – gespeichert im Browser + Export/Import.</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn ghost" id="toggleTheme" type="button">🌓 Theme</button>
+        <button class="btn" id="exportBtn" type="button">⬇️ Export (JSON)</button>
+        <label class="btn" for="importFile" style="cursor:pointer;">
+          ⬆️ Import (JSON)
+          <input id="importFile" type="file" accept="application/json" class="sr-only">
+        </label>
+        <button class="btn danger" id="wipeBtn" type="button">🗑️ Alles löschen</button>
+      </div>
+    </div>
+
+    <div class="bento">
+      <div class="tile">
+        <div class="kicker">Übersicht</div>
+        <p class="big" id="statCount">0 Einträge</p>
+        <p class="sub">Modernes, übersichtliches Journal in nur einer HTML-Datei – ideal für GitHub Pages.</p>
+        <div class="chiprow">
+          <span class="chip" id="statLatest">Letzter Eintrag: –</span>
+          <span class="chip green" id="statUpdated">Zuletzt geändert: –</span>
+          <span class="chip gray" id="statStorage">Storage-Key: –</span>
+        </div>
+      </div>
+
+      <div class="tile">
+        <div class="kicker">Dateien</div>
+        <p class="big">📎 Upload?</p>
+        <p class="sub">GitHub Pages ist statisch – lade Dateien ins Repo und verlinke sie z. B. als <b>files/skript.pdf</b>.</p>
+      </div>
+
+      <div class="tile">
+        <div class="kicker">Videos</div>
+        <p class="big">🎬 Einbetten</p>
+        <p class="sub">YouTube-Link wird automatisch eingebettet. MP4-Pfad (z. B. <b>videos/demo.mp4</b>) geht auch.</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Editor -->
+      <section class="panel" aria-label="Editor">
+        <h2>Eintrag erstellen / korrigieren</h2>
+
+        <form id="lectureForm">
+          <input type="hidden" id="editId" value="" />
+
+          <div class="row">
+            <div class="field">
+              <label for="date">Datum</label>
+              <input id="date" type="date" required />
+            </div>
+            <div class="field">
+              <label for="topic">Thema</label>
+              <input id="topic" type="text" placeholder="z. B. Web Engineering – Routing" required maxlength="120" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="summary">Zusammenfassung</label>
+            <textarea id="summary" placeholder="Kurze, prägnante Notizen zur Vorlesung…"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="keyPoints">Stichpunkte (eine Zeile = ein Punkt)</label>
+            <textarea id="keyPoints" placeholder="z. B.&#10;REST&#10;HTTP Statuscodes&#10;SPA Routing"></textarea>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="field">
+            <label for="tags">Tags (Komma-getrennt)</label>
+            <input id="tags" type="text" placeholder="z. B. uni, web, prüfung" />
+            <div class="hint">Tipp: Tags helfen beim schnellen Filtern & Wiederfinden.</div>
+          </div>
+
+          <div class="field">
+            <label for="materials">Materialien-Links (eine Zeile = ein Link oder Repo-Pfad)</label>
+            <textarea id="materials" placeholder="files/folien.pdf&#10;https://example.com/artikel"></textarea>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="videoUrl">Video (YouTube URL oder MP4-Pfad)</label>
+              <input id="videoUrl" type="text" placeholder="https://www.youtube.com/watch?v=… oder videos/demo.mp4" />
+            </div>
+            <div class="field">
+              <label for="visibility">Markierung</label>
+              <select id="visibility">
+                <option value="normal" selected>Normal</option>
+                <option value="important">Wichtig</option>
+                <option value="exam">Prüfungsrelevant</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row">
+            <button class="btn primary" id="saveBtn" type="submit">✅ Speichern</button>
+            <button class="btn" id="resetBtn" type="button">↩️ Zurücksetzen</button>
+          </div>
+
+          <div class="hint" id="editHint" style="margin-top:10px; display:none;">
+            Du bearbeitest gerade einen bestehenden Eintrag. “Zurücksetzen” beendet das Bearbeiten.
+          </div>
+        </form>
+      </section>
+
+      <!-- Liste -->
+      <section class="panel" aria-label="Liste">
+        <h2>Einträge</h2>
+
+        <div class="toolbar">
+          <div class="search">
+            <span aria-hidden="true">🔎</span>
+            <input id="search" type="search" placeholder="Suche nach Thema, Text, Tags…" />
+          </div>
+          <div class="select">
+            <select id="sort">
+              <option value="dateDesc" selected>Neueste zuerst</option>
+              <option value="dateAsc">Älteste zuerst</option>
+              <option value="topicAsc">Thema A–Z</option>
+            </select>
+          </div>
+          <div class="select">
+            <select id="filterVis">
+              <option value="all" selected>Alle</option>
+              <option value="important">Wichtig</option>
+              <option value="exam">Prüfungsrelevant</option>
+              <option value="normal">Normal</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="list" id="list"></div>
+
+        <div class="footer">
+          Hinweis: Daten liegen im Browser (Local Storage). Für Gerätewechsel Export/Import nutzen.
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    /* Speicherung: Browser localStorage (persistiert ohne Ablaufdatum). [1](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)[2](https://www.w3schools.com/jsref/prop_win_localstorage.asp)
+       GitHub Pages: localStorage kann zwischen Repos derselben Origin geteilt werden → wir prefixen mit pathname. [3](https://tomashubelbauer.github.io/github-pages-local-storage/) */
+    const STORAGE_KEY = `lectureJournal:${location.pathname}`;
+
+    const $ = (id) => document.getElementById(id);
+    const state = { lectures: [], theme: null };
+
+    const nowIso = () => new Date().toISOString();
+    const uid = () => Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
+
+    function load(){
+      try{
+        state.lectures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      }catch(e){
+        state.lectures = [];
+      }
+      try{
+        state.theme = localStorage.getItem("lectureJournal:theme") || null;
+      }catch(e){
+        state.theme = null;
+      }
+      $("statStorage").textContent = `Storage-Key: ${STORAGE_KEY}`;
+      applyTheme(state.theme);
+    }
+
+    function persist(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.lectures));
+      updateStats();
+    }
+
+    function applyTheme(mode){
+      // mode: null (System) | "dark" | "light"
+      const root = document.documentElement;
+      if(mode === "dark"){
+        root.style.colorScheme = "dark";
+        document.body.dataset.theme = "dark";
+      } else if(mode === "light"){
+        root.style.colorScheme = "light";
+        document.body.dataset.theme = "light";
+      } else {
+        root.style.colorScheme = "";
+        document.body.dataset.theme = "";
+      }
+    }
+
+    function toggleTheme(){
+      const cur = state.theme;
+      const next = (cur === null) ? "dark" : (cur === "dark" ? "light" : null);
+      state.theme = next;
+      if(next === null) localStorage.removeItem("lectureJournal:theme");
+      else localStorage.setItem("lectureJournal:theme", next);
+      applyTheme(next);
+    }
+
+    function sanitize(text){
+      return (text ?? "").toString();
+    }
+
+    function escapeHtml(str){
+      return sanitize(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function escapeAttr(str){
+      return escapeHtml(str).replaceAll("`","&#096;");
+    }
+
+    function splitLines(text){
+      return sanitize(text).split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    }
+
+    function parseTags(text){
+      return sanitize(text).split(",").map(t => t.trim()).filter(Boolean);
+    }
+
+    function formatDate(isoDate){
+      if(!isoDate) return "–";
+      const [y,m,d] = isoDate.split("-");
+      return `${d}.${m}.${y}`;
+    }
+
+    function badgeFor(vis){
+      if(vis === "important") return "⚡ Wichtig";
+      if(vis === "exam") return "🎯 Prüfungsrelevant";
+      return "✅ Normal";
+    }
+
+    function youtubeEmbed(url){
+      const u = sanitize(url);
+      if(!u) return null;
+      const watchMatch = u.match(/[?&]v=([^&]+)/);
+      const shortMatch = u.match(/youtu\.be\/([^?&]+)/);
+      const embedMatch = u.match(/youtube\.com\/embed\/([^?&]+)/);
+      const id = (embedMatch && embedMatch[1]) || (watchMatch && watchMatch[1]) || (shortMatch && shortMatch[1]);
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+
+    function isMp4Path(url){
+      const u = sanitize(url);
+      return u.toLowerCase().endsWith(".mp4");
+    }
+
+    function getFilteredSorted(){
+      const q = $("search").value.trim().toLowerCase();
+      const sort = $("sort").value;
+      const filterVis = $("filterVis").value;
+
+      let items = [...state.lectures];
+
+      if(filterVis !== "all"){
+        items = items.filter(x => (x.visibility || "normal") === filterVis);
+      }
+
+      if(q){
+        items = items.filter(x => {
+          const hay = [
+            x.topic, x.date, x.summary,
+            (x.keyPoints || []).join(" "),
+            (x.tags || []).join(" "),
+            (x.materials || []).join(" "),
+            x.videoUrl
+          ].join(" ").toLowerCase();
+          return hay.includes(q);
+        });
+      }
+
+      if(sort === "dateDesc"){
+        items.sort((a,b) => (b.date || "").localeCompare(a.date || ""));
+      } else if(sort === "dateAsc"){
+        items.sort((a,b) => (a.date || "").localeCompare(b.date || ""));
+      } else if(sort === "topicAsc"){
+        items.sort((a,b) => (a.topic || "").localeCompare(b.topic || "", "de"));
+      }
+
+      return items;
+    }
+
+    function updateStats(){
+      const total = state.lectures.length;
+      $("statCount").textContent = `${total} ${total === 1 ? "Eintrag" : "Einträge"}`;
+
+      const latest = [...state.lectures].sort((a,b)=> (b.date||"").localeCompare(a.date||""))[0];
+      $("statLatest").textContent = `Letzter Eintrag: ${latest?.date ? formatDate(latest.date) : "–"}`;
+
+      const lastUpd = [...state.lectures].sort((a,b)=> (b.updatedAt||"").localeCompare(a.updatedAt||""))[0];
+      $("statUpdated").textContent = `Zuletzt geändert: ${lastUpd?.updatedAt ? new Date(lastUpd.updatedAt).toLocaleString() : "–"}`;
+    }
+
+    function render(){
+      const list = $("list");
+      const items = getFilteredSorted();
+
+      if(items.length === 0){
+        list.innerHTML = `<div class="empty">Noch keine Einträge – nutze links den Editor, um deine erste Vorlesung anzulegen.</div>`;
+        updateStats();
+        return;
+      }
+
+      list.innerHTML = items.map(item => {
+        const kp = (item.keyPoints || []);
+        const mats = (item.materials || []);
+        const tags = (item.tags || []);
+        const vis = item.visibility || "normal";
+
+        const yt = youtubeEmbed(item.videoUrl || "");
+        const hasMp4 = item.videoUrl && isMp4Path(item.videoUrl);
+
+        const tagHtml = tags.length
+          ? `<div class="tags">${tags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join("")}</div>`
+          : "";
+
+        const kpHtml = kp.length
+          ? `<p class="muted"><b>Stichpunkte:</b> ${kp.map(x => escapeHtml(x)).join(" · ")}</p>`
+          : "";
+
+        const matsHtml = mats.length
+          ? `<div class="links">${mats.map(u => `<a href="${escapeAttr(u)}" target="_blank" rel="noopener">🔗 ${escapeHtml(u)}</a>`).join("")}</div>`
+          : "";
+
+        let embedHtml = "";
+        if(yt){
+          embedHtml = `<div class="embed"><iframe src="${escapeAttr(yt)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+        } else if(hasMp4){
+          embedHtml = `<div class="embed"><video controls src="${escapeAttr(item.videoUrl)}"></video></div>`;
+        }
+
+        return `
+          <article class="card">
+            <div class="cardhead">
+              <div>
+                <h3 class="title">${escapeHtml(item.topic || "Ohne Thema")}</h3>
+              </div>
+              <div class="meta">
+                <span class="badge">${escapeHtml(badgeFor(vis))}</span>
+                <span>📅 ${escapeHtml(formatDate(item.date || ""))}</span>
+              </div>
+            </div>
+
+            <div class="content">
+              ${item.summary ? `<p>${escapeHtml(item.summary)}</p>` : `<p class="muted">Keine Zusammenfassung hinterlegt.</p>`}
+              ${kpHtml}
+              ${tagHtml}
+              ${matsHtml}
+              ${embedHtml}
+              <p class="muted" style="margin-top:12px;">Zuletzt geändert: ${escapeHtml(item.updatedAt ? new Date(item.updatedAt).toLocaleString() : "–")}</p>
+            </div>
+
+            <div class="cardactions">
+              <button class="btn small" type="button" onclick="startEdit('${escapeAttr(item.id)}')">✏️ Bearbeiten</button>
+              <button class="btn small danger" type="button" onclick="removeLecture('${escapeAttr(item.id)}')">🗑️ Löschen</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      updateStats();
+    }
+
+    function resetForm(){
+      $("editId").value = "";
+      $("lectureForm").reset();
+      $("editHint").style.display = "none";
+      $("saveBtn").textContent = "✅ Speichern";
+      if(!$("date").value){
+        $("date").value = new Date().toISOString().slice(0,10);
+      }
+    }
+
+    function startEdit(id){
+      const item = state.lectures.find(x => x.id === id);
+      if(!item) return;
+
+      $("editId").value = item.id;
+      $("date").value = item.date || "";
+      $("topic").value = item.topic || "";
+      $("summary").value = item.summary || "";
+      $("keyPoints").value = (item.keyPoints || []).join("\n");
+      $("tags").value = (item.tags || []).join(", ");
+      $("materials").value = (item.materials || []).join("\n");
+      $("videoUrl").value = item.videoUrl || "";
+      $("visibility").value = item.visibility || "normal";
+
+      $("editHint").style.display = "block";
+      $("saveBtn").textContent = "💾 Änderungen speichern";
+
+      document.querySelector('[aria-label="Editor"]').scrollIntoView({behavior:"smooth", block:"start"});
+    }
+
+    function removeLecture(id){
+      const item = state.lectures.find(x => x.id === id);
+      if(!item) return;
+      const ok = confirm(`Eintrag "${item.topic}" wirklich löschen?`);
+      if(!ok) return;
+
+      state.lectures = state.lectures.filter(x => x.id !== id);
+      persist();
+      render();
+
+      if($("editId").value === id) resetForm();
+    }
+
+    function upsertFromForm(){
+      const id = $("editId").value.trim();
+      const date = $("date").value;
+      const topic = $("topic").value.trim();
+
+      if(!date || !topic){
+        alert("Bitte Datum und Thema ausfüllen.");
+        return;
+      }
+
+      const entry = {
+        date,
+        topic,
+        summary: $("summary").value.trim(),
+        keyPoints: splitLines($("keyPoints").value),
+        tags: parseTags($("tags").value),
+        materials: splitLines($("materials").value),
+        videoUrl: $("videoUrl").value.trim(),
+        visibility: $("visibility").value,
+        updatedAt: nowIso()
+      };
+
+      if(id){
+        const idx = state.lectures.findIndex(x => x.id === id);
+        if(idx !== -1){
+          state.lectures[idx] = { ...state.lectures[idx], ...entry };
+        }
+      } else {
+        state.lectures.push({ id: uid(), createdAt: nowIso(), ...entry });
+      }
+
+      persist();
+      render();
+      resetForm();
+    }
+
+    function exportJson(){
+      const payload = { exportedAt: nowIso(), storageKey: STORAGE_KEY, lectures: state.lectures };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `vorlesungsjournal-export-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function importJson(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const parsed = JSON.parse(reader.result);
+          const incoming = parsed.lectures || parsed;
+          if(!Array.isArray(incoming)) throw new Error("Ungültiges Format");
+
+          const normalized = incoming.map(x => ({
+            id: x.id || uid(),
+            createdAt: x.createdAt || nowIso(),
+            updatedAt: x.updatedAt || nowIso(),
+            date: x.date || "",
+            topic: x.topic || "Ohne Thema",
+            summary: x.summary || "",
+            keyPoints: Array.isArray(x.keyPoints) ? x.keyPoints : [],
+            tags: Array.isArray(x.tags) ? x.tags : [],
+            materials: Array.isArray(x.materials) ? x.materials : [],
+            videoUrl: x.videoUrl || "",
+            visibility: x.visibility || "normal"
+          }));
+
+          const ok = confirm(`Import bereit: ${normalized.length} Einträge. Bestehende Einträge ersetzen? (OK = ersetzen, Abbrechen = anhängen)`);
+          if(ok){
+            state.lectures = normalized;
+          } else {
+            const ids = new Set(state.lectures.map(x => x.id));
+            normalized.forEach(x => { if(ids.has(x.id)) x.id = uid(); state.lectures.push(x); });
+          }
+
+          persist();
+          render();
+          resetForm();
+          alert("Import abgeschlossen ✅");
+        } catch(e){
+          alert("Import fehlgeschlagen. Bitte eine gültige JSON-Datei verwenden.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function wipeAll(){
+      const ok = confirm("Wirklich ALLES löschen? (Kann nicht rückgängig gemacht werden)");
+      if(!ok) return;
+      state.lectures = [];
+      persist();
+      render();
+      resetForm();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      load();
+      $("date").value = new Date().toISOString().slice(0,10);
+
+      $("lectureForm").addEventListener("submit", (e) => { e.preventDefault(); upsertFromForm(); });
+      $("resetBtn").addEventListener("click", resetForm);
+
+      $("search").addEventListener("input", render);
+      $("sort").addEventListener("change", render);
+      $("filterVis").addEventListener("change", render);
+
+      $("exportBtn").addEventListener("click", exportJson);
+      $("importFile").addEventListener("change", (e) => {
+        const f = e.target.files?.[0];
+        if(f) importJson(f);
+        e.target.value = "";
+      });
+
+      $("wipeBtn").addEventListener("click", wipeAll);
+      $("toggleTheme").addEventListener("click", toggleTheme);
+
+      render();
+    });
+
+    // Expose for inline buttons
+    window.startEdit = startEdit;
+    window.removeLecture = removeLecture;
+  </script>
+</body>
+</html>
