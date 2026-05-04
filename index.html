@@ -1,328 +1,188 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="color-scheme" content="light dark" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Vorlesungsjournal</title>
-  <meta name="description" content="Ein ruhiges, modernes Journal für Vorlesungs-Zusammenfassungen – editierbar über GitHub." />
 
   <style>
-    :root{
-      --bg: #fbfbfc;
-      --surface: rgba(255,255,255,.78);
-      --card: rgba(255,255,255,.92);
-      --text: #14151a;
-      --muted: #5a6472;
-      --line: rgba(20,21,26,.10);
-      --accent: #3b82f6;
-      --accent2: #10b981;
-      --shadow: 0 10px 30px rgba(0,0,0,.06);
-      --radius: 18px;
-      --max: 980px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-    }
-    html[data-theme="dark"]{
-      --bg: #0b0d12;
-      --surface: rgba(16,20,33,.55);
-      --card: rgba(16,20,33,.86);
-      --text: #f0f3ff;
-      --muted: #a7b0c2;
-      --line: rgba(240,243,255,.10);
-      --accent: #60a5fa;
-      --accent2: #34d399;
-      --shadow: 0 12px 32px rgba(0,0,0,.35);
+    :root {
+      --bg: #f7f8fa;
+      --card: #ffffff;
+      --text: #1f2933;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --border: #e5e7eb;
+      --radius: 12px;
+      --max-width: 900px;
     }
 
-    *{ box-sizing:border-box; }
-    body{
-      margin:0;
-      font-family: var(--sans);
-      color: var(--text);
-      background:
-        radial-gradient(1200px 600px at 18% -10%, rgba(59,130,246,.14), transparent 60%),
-        radial-gradient(900px 500px at 110% 5%, rgba(16,185,129,.12), transparent 55%),
-        var(--bg);
-      min-height:100vh;
-      line-height:1.55;
-    }
-    a{ color:inherit; text-decoration:none; }
-    a:hover{ color: var(--accent); }
-
-    .container{
-      width: min(var(--max), calc(100% - 32px));
-      margin: 0 auto;
+    * {
+      box-sizing: border-box;
     }
 
-    /* Topbar */
-    .topbar{
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      backdrop-filter: blur(10px);
-      background: var(--surface);
-      border-bottom: 1px solid var(--line);
-    }
-    .topbarInner{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 14px 0;
-      gap: 12px;
-    }
-    .brand{
-      display:inline-flex;
-      align-items:center;
-      gap: 10px;
-      font-weight: 700;
-      letter-spacing: .2px;
-    }
-    .dot{
-      width: 10px; height: 10px; border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 0 7px rgba(59,130,246,.16);
-    }
-    .nav{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      color: var(--muted);
-      font-weight: 560;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-    .btn{
-      border: 1px solid var(--line);
-      background: var(--card);
-      color: var(--text);
-      padding: 9px 12px;
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-      cursor:pointer;
-      transition: transform .08s ease;
-    }
-    .btn:active{ transform: translateY(1px); }
-    .btn.ghost{
-      background: transparent;
-      box-shadow: none;
-    }
-
-    main{ padding: 22px 0 44px; }
-
-    /* Hero */
-    .hero{
-      padding: 20px 0 10px;
-    }
-    h1{
-      margin:0;
-      font-size: clamp(1.9rem, 2.8vw, 2.6rem);
-      letter-spacing: -.02em;
-    }
-    .subtitle{
-      margin: 8px 0 0;
-      color: var(--muted);
-      max-width: 75ch;
-    }
-
-    /* Controls */
-    .controls{
-      margin-top: 18px;
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-    .search{
-      width:100%;
-      padding: 14px 14px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: var(--card);
-      color: var(--text);
-      box-shadow: var(--shadow);
-      outline: none;
-    }
-    .search:focus{
-      border-color: rgba(59,130,246,.55);
-      box-shadow: 0 0 0 6px rgba(59,130,246,.14), var(--shadow);
-    }
-    .row{
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items:center;
-      justify-content: space-between;
-    }
-    .chipRow{ display:flex; gap: 8px; flex-wrap: wrap; }
-    .chip{
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 92%, transparent);
-      color: var(--muted);
-      font-size: .92rem;
-      cursor: pointer;
-      user-select:none;
-    }
-    .chip[data-active="true"]{
-      color: var(--text);
-      border-color: rgba(59,130,246,.45);
-      box-shadow: 0 0 0 6px rgba(59,130,246,.10);
-    }
-    .hint{
-      color: var(--muted);
-      font-size: .92rem;
-    }
-    .hint code{
-      font-family: var(--mono);
-      padding: 2px 6px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: color-mix(in srgb, var(--card) 85%, transparent);
-    }
-
-    /* List / Cards */
-    .list{
-      margin-top: 18px;
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-    .card{
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: var(--card);
-      box-shadow: var(--shadow);
-      padding: 16px;
-    }
-    .meta{
-      display:flex;
-      flex-wrap: wrap;
-      gap: 8px 10px;
-      align-items:center;
-      color: var(--muted);
-      font-size: .92rem;
-    }
-    .date{ font-family: var(--mono); font-size: .9rem; }
-    .pill{
-      padding: 3px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 90%, transparent);
-    }
-    .tag{ color: color-mix(in srgb, var(--muted) 85%, var(--accent)); }
-    .title{
-      margin: 10px 0 6px;
-      font-size: 1.18rem;
-      letter-spacing: -.01em;
-    }
-    .summary{ margin: 0; color: var(--muted); }
-
-    .cardActions{
-      display:flex;
-      gap: 10px;
-      margin-top: 12px;
-      flex-wrap: wrap;
-      align-items:center;
-      justify-content: space-between;
-    }
-    .link{
-      color: var(--accent);
-      font-weight: 650;
-    }
-
-    /* Modal / Detail */
-    dialog{
-      width: min(920px, calc(100% - 24px));
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: var(--card);
-      box-shadow: 0 25px 60px rgba(0,0,0,.25);
-      padding: 0;
-      overflow: hidden;
-    }
-    dialog::backdrop{
-      background: rgba(0,0,0,.45);
-      backdrop-filter: blur(3px);
-    }
-    .modalHeader{
-      padding: 16px 16px 0;
-      display:flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .modalTitle{
+    body {
       margin: 0;
-      font-size: 1.35rem;
-      letter-spacing: -.01em;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
     }
-    .modalBody{
-      padding: 10px 16px 16px;
+
+    header {
+      background: linear-gradient(135deg, #2563eb, #1e40af);
+      color: white;
+      padding: 3rem 1.5rem;
     }
-    .prose h3{ margin-top: 18px; }
-    .prose p{ margin: 10px 0; }
-    .prose ul{ padding-left: 18px; }
-    .prose code{
-      font-family: var(--mono);
-      font-size: .95em;
-      padding: 2px 6px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: color-mix(in srgb, var(--card) 85%, transparent);
+
+    header h1 {
+      margin: 0 0 0.5rem;
+      font-size: 2.3rem;
     }
-    .media{
-      margin-top: 14px;
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
+
+    header p {
+      margin: 0;
+      opacity: 0.9;
+      max-width: var(--max-width);
     }
-    .mediaCard{
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      overflow:hidden;
-      background: #000;
-      box-shadow: var(--shadow);
+
+    main {
+      max-width: var(--max-width);
+      margin: 2.5rem auto;
+      padding: 0 1.5rem;
     }
-    .mediaCard img{
-      width:100%;
-      height:auto;
-      display:block;
-      background: #111;
+
+    .lecture {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1.8rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
     }
-    .mediaCard iframe, .mediaCard video{
-      width:100%;
-      aspect-ratio: 16 / 9;
-      display:block;
+
+    .lecture header {
+      background: none;
+      color: inherit;
+      padding: 0;
+      margin-bottom: 1.2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.8rem;
     }
-    .footer{
-      border-top: 1px solid var(--line);
-      margin-top: 30px;
-      padding: 18px 0;
+
+    .lecture h2 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    time {
+      display: block;
+      font-size: 0.9rem;
       color: var(--muted);
+      margin-top: 0.2rem;
     }
-    .footerInner{
-      display:flex;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
+
+    section {
+      margin-top: 1.2rem;
     }
-    .empty{
-      padding: 18px;
-      border: 1px dashed var(--line);
-      border-radius: 18px;
+
+    section h3 {
+      margin-bottom: 0.4rem;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+    }
+
+    ul {
+      padding-left: 1.2rem;
+      margin: 0.5rem 0;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    video, iframe {
+      width: 100%;
+      max-width: 100%;
+      margin-top: 0.8rem;
+      border-radius: var(--radius);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
       color: var(--muted);
-      text-align:center;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 
 <body>
-  <header class="topbar">
-    <div class="container topbarInner">
-      <div class="brand" aria-label="Vorlesungsjournal">
-        <span class="dot" aria-hidden="true"></span>
-        <span>Vorlesungsjournal</span>
-      </div>
 
-      <nav class="nav">
+<header>
+  <h1>Vorlesungsjournal</h1>
+  <p>Persönliche Dokumentation meiner Vorlesungen – strukturiert, versioniert und jederzeit anpassbar.</p>
+</header>
+
+<main id="journal">
+
+  <!-- ========================= -->
+  <!-- VORLESUNG 04.05.2026 -->
+  <!-- ========================= -->
+  <article class="lecture">
+    <header>
+      <h2>Web Engineering – Grundlagen</h2>
+      <time datetime="2026-05-04">04.05.2026</time>
+    </header>
+
+    <section>
+      <h3>Zusammenfassung</h3>
+      <p>
+        Einführung in den Aufbau moderner Webanwendungen, Fokus auf
+        semantisches HTML, saubere Struktur und GitHub Pages als Hosting-Lösung.
+      </p>
+    </section>
+
+    <section>
+      <h3>Wichtige Inhalte</h3>
+      <ul>
+        <li>Semantisches HTML</li>
+        <li>Statische Webseiten</li>
+        <li>Versionskontrolle mit Git</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Materialien</h3>
+      <ul>
+        <li>files/folien-webengineering.pdfVorlesungsfolien (PDF)</a></li>
+        <li>https://youtu.be/dQw4w9WgXcQErklärvideo</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Video (optional)</h3>
+      <iframe 
+        src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+        title="YouTube Video"
+        frameborder="0"
+        allowfullscreen>
+      </iframe>
+    </section>
+  </article>
+
+</main>
+
+<footer>
+  © 2026 – Persönliches Vorlesungsjournal · Erstellt mit HTML & GitHub Pages
+</footer>
+
+</body>
+</html>
