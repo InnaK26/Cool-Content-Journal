@@ -643,7 +643,13 @@
         .replaceAll('"',"&quot;")
         .replaceAll("'","&#039;");
     }
-
+    function formatParagraphs(text){
+      return sanitize(text)
+        .split(/\n\s*\n/)  // erkennt Absätze (doppelte Zeilenumbrüche)
+        .map(p => `<p>${escapeHtml(p).replace(/\n/g, "<br>")}</p>`)
+        .join("");
+}
+    
     function escapeAttr(str){
       return escapeHtml(str).replaceAll("`","&#096;");
     }
@@ -780,7 +786,7 @@
             </div>
 
             <div class="content">
-              ${item.summary ? `<p>${escapeHtml(item.summary)}</p>` : `<p class="muted">Keine Zusammenfassung hinterlegt.</p>`}
+              ${item.summary ? formatParagraphs(item.summary) : `<p class="muted">Keine Zusammenfassung hinterlegt.</p>`}
               ${kpHtml}
               ${tagHtml}
               ${matsHtml}
