@@ -1,0 +1,38 @@
+<!-- Bestehende HTML-Seite -->
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Deine bestehenden Meta-Tags, CSS, etc. -->
+    <style>
+        /* Dein bestehender CSS-Code */
+        #snake-game {
+            margin: 20px auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Dein bestehender Inhalt -->
+    <h1>Meine Website</h1>
+    <p>Hier ist ein Snake-Spiel:</p>
+
+    <!-- Snake-Spiel einbetten -->
+    <div id="snake-game">
+        <canvas id="game-canvas" width="600" height="400"></canvas>
+        <div id="score" style="position: absolute; top: 10px; right: 10px; color: #fff; font-size: 20px; font-weight: bold;">Score: 0</div>
+    </div>
+
+    <!-- Snake-JavaScript -->
+    <script>
+        // Hier den gesamten JavaScript-Code aus dem Snake-Spiel einfügen
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+
+        // Rest des Snake-Codes (wie zuvor) ...
+        // Achte darauf, dass die IDs (game-canvas, score) mit den HTML-Elementen übereinstimmen.
+    </script>
+
+    <!-- Rest deiner bestehenden Seite -->
+</body>
+</html>
